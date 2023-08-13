@@ -1,0 +1,61 @@
+version: "3.8"
+services:
+  etcd:
+    image: quay.io/coreos/etcd:v3.4.27
+    ports:
+      - 2379:2379
+    entrypoint: 
+      - /usr/local/bin/etcd 
+      - --advertise-client-urls
+      - http://0.0.0.0:2379
+      - --listen-client-urls
+      - http://0.0.0.0:2379
+      - --data-dir
+      - /etcd-data
+    volumes:
+      - etcd-data:/etcd-data
+    # networks:
+    #   - internal
+
+  kube-apiserver:
+    image: registry.k8s.io/kube-apiserver:v1.27.4
+    ports:
+      - 6443:6443
+    depends_on:
+      etcd:
+        condition: service_started
+      bootstrap:
+        condition: service_completed_successfully
+    entrypoint:
+      - /usr/local/bin/kube-apiserver
+      - --etcd-servers=http://etcd:2379
+      - --bind-address=0.0.0.0
+      - --service-cluster-ip-range=10.0.0.0/24
+      - --authorization-mode=AlwaysAllow
+      - --service-account-issuer=https://kube-apiserver:6443
+      - --service-account-key-file=/etc/keyfiles/service-account.pem
+      - --service-account-signing-key-file=/etc/keyfiles/service-account-key.pem
+      - --token-auth-file=/etc/kubernetes/tokenfile.csv
+    volumes:
+      - key-files:/etc/keyfiles
+      - ./bootstrap-data/tokenfile.csv:/etc/kubernetes/tokenfile.csv
+
+  bootstrap:
+    image: cfssl/cfssl:v1.6.4
+    entrypoint: 
+      - bash
+      - /usr/scripts/bootstrap
+    environment:
+      CERT_DIR: /etc/keyfiles
+      TEMP_DIR: /tmp/keyfiles
+    volumes:
+      - key-files:/etc/keyfiles
+      - ./scripts:/usr/scripts
+
+volumes:
+  etcd-data: {}
+  key-files: {}
+
+# networks:
+#   internal:
+#     driver: bridge
