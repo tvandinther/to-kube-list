@@ -1,0 +1,33 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: todoitems.tokubelist.com
+spec:
+  group: tokubelist.com
+  scope: Namespaced
+  names:
+    plural: todoitems
+    singular: todoitem
+    kind: TodoItem
+    shortNames:
+      - ti
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            listName:
+              type: string
+            title:
+              type: string
+            description:
+              type: string
+            completed:
+              type: boolean
+              default: false
+          required:
+            - title
+            - listName

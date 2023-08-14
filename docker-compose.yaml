@@ -14,8 +14,8 @@ services:
       - /etcd-data
     volumes:
       - etcd-data:/etcd-data
-    # networks:
-    #   - internal
+    networks:
+      - internal
 
   kube-apiserver:
     image: registry.k8s.io/kube-apiserver:v1.27.4
@@ -36,15 +36,19 @@ services:
       - --service-account-key-file=/etc/keyfiles/service-account.pem
       - --service-account-signing-key-file=/etc/keyfiles/service-account-key.pem
       - --token-auth-file=/etc/kubernetes/tokenfile.csv
+      - --tls-cert-file=/etc/keyfiles/apiserver.pem
+      - --tls-private-key-file=/etc/keyfiles/apiserver-key.pem
     volumes:
       - key-files:/etc/keyfiles
-      - ./bootstrap-data/tokenfile.csv:/etc/kubernetes/tokenfile.csv
+      - ./files/tokenfile.csv:/etc/kubernetes/tokenfile.csv
+    networks:
+      - internal
 
   bootstrap:
     image: cfssl/cfssl:v1.6.4
     entrypoint: 
       - bash
-      - /usr/scripts/bootstrap
+      - /usr/scripts/bootstrap-certs
     environment:
       CERT_DIR: /etc/keyfiles
       TEMP_DIR: /tmp/keyfiles
@@ -52,10 +56,24 @@ services:
       - key-files:/etc/keyfiles
       - ./scripts:/usr/scripts
 
+  bootstrap-data:
+    image: bitnami/kubectl:1.27.4
+    depends_on:
+      kube-apiserver:
+        condition: service_started
+    entrypoint:
+      - bash
+      - /usr/bootstrap-apiserver/run
+    volumes:
+      - ./bootstrap-apiserver:/usr/bootstrap-apiserver
+      - key-files:/etc/keyfiles
+    networks:
+      - internal
+
 volumes:
   etcd-data: {}
   key-files: {}
 
-# networks:
-#   internal:
-#     driver: bridge
+networks:
+  internal:
+    driver: bridge

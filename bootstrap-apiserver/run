@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+self_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+cd "${self_dir}"
+
+kubectl config set-cluster default --server=https://kube-apiserver:6443 --certificate-authority=/etc/keyfiles/ca.pem
+kubectl config set-credentials default --token=super-secret-token
+kubectl config set-context default --cluster=default --user=default
+
+kubectl config use-context default
+
+until kubectl version; do
+  echo "Waiting for Kubernetes API server to become available..."
+  sleep 2
+done
+
+kubectl apply -f templates/todoitem-crd.yaml
+kubectl apply -f templates/todolist-crd.yaml

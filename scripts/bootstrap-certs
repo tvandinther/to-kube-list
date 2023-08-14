@@ -7,6 +7,7 @@ cd "${self_dir}"
 mkdir -p $TEMP_DIR || true
 
 ./generate-ca-certs $TEMP_DIR
+./generate-apiserver-certs $TEMP_DIR
 ./generate-sa-certs $TEMP_DIR
 
 cp $TEMP_DIR/*.pem $CERT_DIR
