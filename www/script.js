@@ -89,6 +89,8 @@ function generateToDoListNode(list) {
     let deleteButton = document.createElement("button");
     deleteButton.innerText = "Delete";
     deleteButton.onclick = function() {
+        callApi(`todoitems?labelSelector=tokubelist.com/list=${list.metadata.name}`, "DELETE", null, function() {});
+
         callApi(`todolists/${list.metadata.name}`, "DELETE", null, function() {
             getLists();
         });
