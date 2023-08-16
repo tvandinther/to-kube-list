@@ -4,31 +4,30 @@ set -euo pipefail
 temp_dir=$1
 cd "${temp_dir}"
 
-KUBERNETES_HOSTNAMES=kube-apiserver,kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local
+cat > openssl.cnf <<EOF
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+distinguished_name = dn
 
-cat > apiserver-csr.json <<EOF
-{
-  "CN": "kubernetes",
-  "key": {
-    "algo": "rsa",
-    "size": 2048
-  },
-  "names": [
-    {
-      "C": "US",
-      "L": "Portland",
-      "O": "Kubernetes",
-      "OU": "Kubernetes The Hard Way",
-      "ST": "Oregon"
-    }
-  ]
-}
+[dn]
+CN = kube-apiserver
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = kube-apiserver
+DNS.2 = kubernetes
+DNS.3 = kubernetes.default
+DNS.4 = kubernetes.default.svc
+DNS.5 = kubernetes.default.svc.cluster
+DNS.6 = kubernetes.svc.cluster.local
 EOF
 
-cfssl gencert \
-  -ca=ca.pem \
-  -ca-key=ca-key.pem \
-  -config=ca-config.json \
-  -hostname=10.32.0.1,10.240.0.10,10.240.0.11,10.240.0.12,127.0.0.1,${KUBERNETES_HOSTNAMES} \
-  -profile=kubernetes \
-  apiserver-csr.json | cfssljson -bare apiserver
+echo "Generating API server key and certificate"
+
+openssl genrsa -out apiserver.key 2048
+openssl req -new -key apiserver.key -out apiserver-csr.crt -config openssl.cnf
+openssl x509 -req -in apiserver-csr.crt -CA ca.crt -CAkey ca.key -CAcreateserial -out apiserver.crt -days 365 -sha256 -extensions req_ext -extfile openssl.cnf

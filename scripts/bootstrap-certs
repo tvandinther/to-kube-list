@@ -10,4 +10,5 @@ mkdir -p $TEMP_DIR || true
 ./generate-apiserver-certs $TEMP_DIR
 ./generate-sa-certs $TEMP_DIR
 
-cp $TEMP_DIR/*.pem $CERT_DIR
+cp $TEMP_DIR/*.crt $CERT_DIR
+cp $TEMP_DIR/*.key $CERT_DIR

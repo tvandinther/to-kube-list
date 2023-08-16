@@ -4,39 +4,19 @@ set -euo pipefail
 temp_dir=$1
 cd "${temp_dir}"
 
-cat > ca-config.json <<EOF
-{
-  "signing": {
-    "default": {
-      "expiry": "8760h"
-    },
-    "profiles": {
-      "kubernetes": {
-        "usages": ["signing", "key encipherment", "server auth", "client auth"],
-        "expiry": "8760h"
-      }
-    }
-  }
-}
+cat > openssl.cnf <<EOF
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+distinguished_name = dn
+
+[dn]
+CN = Kubernetes
 EOF
 
-cat > ca-csr.json <<EOF
-{
-  "CN": "Kubernetes",
-  "key": {
-    "algo": "rsa",
-    "size": 2048
-  },
-  "names": [
-    {
-      "C": "US",
-      "L": "Portland",
-      "O": "Kubernetes",
-      "OU": "CA",
-      "ST": "Oregon"
-    }
-  ]
-}
-EOF
+echo "Generating CA key and certificate"
 
-cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+openssl genrsa -out ca.key 2048
+openssl req -new -key ca.key -out ca-csr.crt -config openssl.cnf
+openssl x509 -req -in ca-csr.crt -signkey ca.key -out ca.crt -days 365 -sha256

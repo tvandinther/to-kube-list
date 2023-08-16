@@ -30,11 +30,11 @@ services:
       - --service-cluster-ip-range=10.0.0.0/24
       - --authorization-mode=AlwaysAllow
       - --service-account-issuer=https://kube-apiserver:6443
-      - --service-account-key-file=/etc/keyfiles/service-account.pem
-      - --service-account-signing-key-file=/etc/keyfiles/service-account-key.pem
+      - --service-account-key-file=/etc/keyfiles/service-account.crt
+      - --service-account-signing-key-file=/etc/keyfiles/service-account.key
       - --token-auth-file=/etc/kubernetes/tokenfile.csv
-      - --tls-cert-file=/etc/keyfiles/apiserver.pem
-      - --tls-private-key-file=/etc/keyfiles/apiserver-key.pem
+      - --tls-cert-file=/etc/keyfiles/apiserver.crt
+      - --tls-private-key-file=/etc/keyfiles/apiserver.key
       - --cors-allowed-origins=.*
     volumes:
       - key-files:/etc/keyfiles
@@ -43,7 +43,7 @@ services:
       - internal
 
   bootstrap-certs:
-    image: cfssl/cfssl:v1.6.4
+    image: finalgene/openssh:9.1
     entrypoint: 
       - bash
       - /usr/scripts/bootstrap-certs
