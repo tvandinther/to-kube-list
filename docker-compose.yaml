@@ -2,8 +2,6 @@ version: "3.8"
 services:
   etcd:
     image: quay.io/coreos/etcd:v3.4.27
-    ports:
-      - 2379:2379
     entrypoint: 
       - /usr/local/bin/etcd 
       - --advertise-client-urls
@@ -12,15 +10,15 @@ services:
       - http://0.0.0.0:2379
       - --data-dir
       - /etcd-data
-    volumes:
-      - etcd-data:/etcd-data
+    # volumes:
+    #   - etcd-data:/etcd-data
     networks:
       - internal
 
   kube-apiserver:
     image: registry.k8s.io/kube-apiserver:v1.27.4
-    ports:
-      - 6443:6443
+    # ports:
+    #   - 6443:6443
     depends_on:
       etcd:
         condition: service_started
@@ -38,6 +36,7 @@ services:
       - --token-auth-file=/etc/kubernetes/tokenfile.csv
       - --tls-cert-file=/etc/keyfiles/apiserver.pem
       - --tls-private-key-file=/etc/keyfiles/apiserver-key.pem
+      - --cors-allowed-origins=.*
     volumes:
       - key-files:/etc/keyfiles
       - ./files/tokenfile.csv:/etc/kubernetes/tokenfile.csv
@@ -70,8 +69,22 @@ services:
     networks:
       - internal
 
+  webserver:
+    image: nginx:1.21.3
+    ports:
+      - 8080:80
+    volumes:
+      - ./www:/usr/share/nginx/html
+      - key-files:/etc/keyfiles
+      - ./files/nginx.conf:/etc/nginx/nginx.conf
+    entrypoint:
+      - nginx
+      - -g
+      - daemon off;
+    networks:
+      - internal
+
 volumes:
-  etcd-data: {}
   key-files: {}
 
 networks:

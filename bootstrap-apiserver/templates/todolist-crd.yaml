@@ -19,7 +19,10 @@ spec:
         openAPIV3Schema:
           type: object
           properties:
-            title:
-              type: string
-          required:
-            - title
+            spec:
+              type: object
+              properties:
+                title:
+                  type: string
+              required:
+                - title

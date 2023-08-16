@@ -1,0 +1,11 @@
+.listItem {
+    display: grid;
+    grid-template-columns: 1fr 1fr 80px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    max-width: 600px;
+}
+
+.listItem > .listTitle {
+    font-weight: bold;
+}

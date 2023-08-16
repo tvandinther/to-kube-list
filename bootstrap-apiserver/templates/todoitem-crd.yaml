@@ -19,15 +19,18 @@ spec:
         openAPIV3Schema:
           type: object
           properties:
-            listName:
-              type: string
-            title:
-              type: string
-            description:
-              type: string
-            completed:
-              type: boolean
-              default: false
-          required:
-            - title
-            - listName
+            spec:
+              type: object
+              properties:
+                listName:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                completed:
+                  type: boolean
+                  default: false
+              required:
+                - title
+                - listName
