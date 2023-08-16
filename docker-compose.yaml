@@ -10,6 +10,7 @@ services:
       - http://0.0.0.0:2379
       - --data-dir
       - /etcd-data
+    # uncomment the lines below (and the volume declaration under $.volumes.etcd-data) to persist application data
     # volumes:
     #   - etcd-data:/etcd-data
     networks:
@@ -17,12 +18,10 @@ services:
 
   kube-apiserver:
     image: registry.k8s.io/kube-apiserver:v1.27.4
-    # ports:
-    #   - 6443:6443
     depends_on:
       etcd:
         condition: service_started
-      bootstrap:
+      bootstrap-certs:
         condition: service_completed_successfully
     entrypoint:
       - /usr/local/bin/kube-apiserver
@@ -43,7 +42,7 @@ services:
     networks:
       - internal
 
-  bootstrap:
+  bootstrap-certs:
     image: cfssl/cfssl:v1.6.4
     entrypoint: 
       - bash
@@ -55,7 +54,7 @@ services:
       - key-files:/etc/keyfiles
       - ./scripts:/usr/scripts
 
-  bootstrap-data:
+  bootstrap-apiserver:
     image: bitnami/kubectl:1.27.4
     depends_on:
       kube-apiserver:
@@ -86,6 +85,7 @@ services:
 
 volumes:
   key-files: {}
+  # etcd-data: {} # uncomment this line (and $.services.etcd.volumes[*]) to persist application data
 
 networks:
   internal:
