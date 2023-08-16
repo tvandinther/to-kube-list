@@ -22,8 +22,6 @@ spec:
             spec:
               type: object
               properties:
-                listName:
-                  type: string
                 title:
                   type: string
                 description:
@@ -33,4 +31,3 @@ spec:
                   default: false
               required:
                 - title
-                - listName

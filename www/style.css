@@ -1,11 +1,41 @@
 .listItem {
-    display: grid;
-    grid-template-columns: 1fr 1fr 80px;
     padding: 10px;
     border-bottom: 1px solid #ccc;
     max-width: 600px;
 }
 
-.listItem > .listTitle {
+.listItem > .details {
+    display: grid;
+    grid-template-columns: 1fr 1fr 80px;
+}
+
+.listItem > .details > .listTitle {
     font-weight: bold;
+}
+
+.items > * {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 25px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.items > .header {
+    font-weight: bold;
+}
+
+.items > .header > .itemCompleted {
+    justify-self: center;
+}
+
+.items > .item:nth-child(odd) {
+    background-color: #eee;
+}
+
+.items > .item > input.itemCompleted {
+    cursor: pointer;
+}
+
+button {
+    cursor: pointer;
 }
