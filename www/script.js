@@ -72,17 +72,17 @@ function callApi(endpoint, method, body, callback) {
 }
 
 function generateToDoListNode(list) {
-    let node = document.createElement("li");
+    let node = document.createElement("div");
     node.classList.add("listItem");
 
     let detailsNode = document.createElement("div");
     detailsNode.classList.add("details");
 
-    let name = document.createElement("span");
+    let name = document.createElement("h2");
     name.classList.add("listTitle");
     name.innerText = list.spec.title;
 
-    let title = document.createElement("span");
+    let title = document.createElement("p");
     title.classList.add("listName");
     title.innerText = list.metadata.name;
 
@@ -102,11 +102,11 @@ function generateToDoListNode(list) {
 
     let itemsWrapper = document.createElement("div");
 
-    let itemsNode = document.createElement("ul");
+    let itemsNode = document.createElement("div");
     itemsNode.classList.add("items");
     itemsNode.id = `items-${list.metadata.name}`;
 
-    let newItemNode = document.createElement("li");
+    let newItemNode = document.createElement("div");
     newItemNode.classList.add("item");
     newItemNode.classList.add("newItem");
 
@@ -138,7 +138,7 @@ function generateToDoListNode(list) {
 }
 
 function generateToDoItemNode(item, listName) {
-    let node = document.createElement("li");
+    let node = document.createElement("div");
     node.classList.add("item");
     
     let titleNode = document.createElement("span");

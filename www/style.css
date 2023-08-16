@@ -9,6 +9,10 @@
     grid-template-columns: 1fr 1fr 80px;
 }
 
+.listItem > .details > button {
+    height: 25px;
+}
+
 .listItem > .details > .listTitle {
     font-weight: bold;
 }
